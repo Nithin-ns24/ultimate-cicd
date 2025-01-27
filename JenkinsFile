@@ -3,8 +3,8 @@ pipeline {
 
     environment {
         DOCKER_IMAGE = "nithin246/cicd-test:${BUILD_NUMBER}"
-        GIT_REPO_URL = "https://github.com/Nithin-ns24/Jenkins-Zero-To-Hero.git"
-        CLONE_REPO_URL = "https://github.com/Nithin-ns24/Jenkins-Zero-To-Hero.git"
+        GIT_REPO_URL = "https://github.com/Nithin-ns24/ultimate-cicd.git"
+        CLONE_REPO_URL = "https://github.com/Nithin-ns24/ultimate-cicd.git"
     }
 
     stages {
@@ -19,7 +19,7 @@ pipeline {
             steps {
                 git branch: 'main',
                     credentialsId: 'github-1',
-                    url: 'https://github.com/Nithin-ns24/Jenkins-Zero-To-Hero.git'
+                    url: 'https://github.com/Nithin-ns24/ultimate-cicd.git'
             }
         }
 
