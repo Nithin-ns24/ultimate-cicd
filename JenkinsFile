@@ -47,7 +47,7 @@ pipeline {
                 echo "Updating Kubernetes manifests with the new Docker image..."
                 script {
                     sh '''
-                        sed -i "s|replaceImageTag|${DOCKER_IMAGE}|" k8s/deployment.yaml
+                        sed -i "s|replaceImageTag|${DOCKER_IMAGE}|" manifest-files/deployment.yml
                     '''
                 }
             }
@@ -58,8 +58,8 @@ pipeline {
                 echo "Deploying updated manifests to Kubernetes cluster..."
                 withKubeConfig(credentialsId: 'k8s-cluster-cred') {
                     sh '''
-                        kubectl apply -f k8s/deployment.yaml
-                        kubectl apply -f k8s/service.yaml
+                        kubectl apply -f manifest-files/deployment.yml
+                        kubectl apply -f manifest-files/service.yml
                     '''
                 }
             }
