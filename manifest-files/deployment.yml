@@ -16,6 +16,6 @@ spec:
     spec:
       containers:
       - name: spring-boot-app
-        image: :replaceImageTag # This will be dynamically updated in the pipeline
+        image: replaceImageTag # This will be dynamically updated in the pipeline
         ports:
         - containerPort: 8080
