@@ -4,7 +4,6 @@ pipeline {
     environment {
         DOCKER_IMAGE = "nithin246/cicd-test:${BUILD_NUMBER}"
         GIT_REPO_URL = "https://github.com/Nithin-ns24/ultimate-cicd.git"
-        CLONE_REPO_URL = "https://github.com/Nithin-ns24/ultimate-cicd.git"
     }
 
     stages {
@@ -17,9 +16,10 @@ pipeline {
 
         stage('Clone Repository') {
             steps {
+                echo "Cloning the repository..."
                 git branch: 'main',
                     credentialsId: 'github-1',
-                    url: 'https://github.com/Nithin-ns24/ultimate-cicd.git'
+                    url: "${GIT_REPO_URL}"
             }
         }
 
@@ -32,7 +32,7 @@ pipeline {
 
         stage('Push Docker Image') {
             steps {
-                echo "Pushing Docker image to registry..."
+                echo "Pushing Docker image to the registry..."
                 withCredentials([usernamePassword(credentialsId: 'docker-cred', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
                     sh '''
                         echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
@@ -42,13 +42,24 @@ pipeline {
             }
         }
 
+        stage('Update Kubernetes Manifests') {
+            steps {
+                echo "Updating Kubernetes manifests with the new Docker image..."
+                script {
+                    sh '''
+                        sed -i "s|replaceImageTag|${DOCKER_IMAGE}|" k8s/deployment.yaml
+                    '''
+                }
+            }
+        }
+
         stage('Deploy to Kubernetes') {
             steps {
-                echo "Deploying to Kubernetes cluster..."
+                echo "Deploying updated manifests to Kubernetes cluster..."
                 withKubeConfig(credentialsId: 'k8s-cluster-cred') {
                     sh '''
-                        kubectl set image deployment/your-deployment your-container=${DOCKER_IMAGE}
-                        kubectl rollout status deployment/your-deployment
+                        kubectl apply -f k8s/deployment.yaml
+                        kubectl apply -f k8s/service.yaml
                     '''
                 }
             }
@@ -57,13 +68,13 @@ pipeline {
 
     post {
         always {
-            echo "Pipeline completed."
+            echo "Pipeline execution completed."
         }
         success {
             echo "Pipeline executed successfully!"
         }
         failure {
-            echo "Pipeline failed. Please check the logs."
+            echo "Pipeline failed. Please check the logs for errors."
         }
     }
 }
