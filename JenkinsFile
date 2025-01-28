@@ -46,10 +46,17 @@ pipeline {
             steps {
                 echo "Updating Kubernetes manifests with the new Docker image..."
                 script {
-                    sh '''
-                        sed -i "s|replaceImageTag|${DOCKER_IMAGE}|" manifest-files/deployment.yml
-                    '''
+                    sh """
+                        sed -i 's|replaceImageTag|${DOCKER_IMAGE}|' manifest-files/deployment.yml
+                    """
                 }
+            }
+        }
+
+        stage('Verify Manifest Update') {
+            steps {
+                echo "Verifying updated Kubernetes manifests..."
+                sh "cat manifest-files/deployment.yml"
             }
         }
 
